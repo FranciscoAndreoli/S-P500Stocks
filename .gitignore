@@ -154,11 +154,7 @@ dmypy.json
 # Cython debug symbols
 cython_debug/
 # CSV
-.sp500_companies.csv
-.sp500_index.csv
-.sp500_stocks.csv
-.sp-500-stocks.zip
-
+/src/data/
 # PyCharm
 #  JetBrains specific template is maintained in a separate JetBrains.gitignore that can
 #  be found at https://github.com/github/gitignore/blob/main/Global/JetBrains.gitignore
