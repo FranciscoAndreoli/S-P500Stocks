@@ -3,7 +3,6 @@ st.set_page_config(layout="wide")
 import os
 from datetime import datetime
 import pandas as pd
-import kaggle_download 
 import data_processing
 from visualizations import view
 
@@ -17,30 +16,13 @@ csv_path_stocks = os.path.join(data_folder, csv_file_stocks)
 csv_path_index = os.path.join(data_folder, csv_file_index)
 csv_path_companies = os.path.join(data_folder, csv_file_companies)
 
-def get_file_modification_date(path):
-    try:
-        modification_file_time = os.path.getmtime(path)
-        dt_m = datetime.fromtimestamp(modification_file_time)
-        return dt_m.strftime("%Y-%m-%d")
-    except FileNotFoundError:
-        return None
-    except OSError as e:
-        st.error(f"Error: An OS error occurred - {e}")
-        return None
-    except Exception as e:
-        st.error(f"Error: An unexpected error occurred - {e}")
-        return None
-
-def download_and_check_modification_date():
-    kaggle_download.download_dataset()
-    return get_file_modification_date(csv_path_index)
 
 def main():
-    modification_file_time_formated = get_file_modification_date(csv_path_index)
+    modification_file_time_formated = data_processing.get_file_modification_date(csv_path_index)
     todaysDate = datetime.today().strftime('%Y-%m-%d')
 
     if modification_file_time_formated is None or todaysDate != modification_file_time_formated:
-        modification_file_time_formated = download_and_check_modification_date()
+        modification_file_time_formated = data_processing.download_and_check_modification_date(csv_path_index)
 
     if modification_file_time_formated is None:
         st.error("Error: Failed to download or access the dataset.")
@@ -51,7 +33,8 @@ def main():
 def process_and_visualize_data():
     df_index, df_stocks, df_companies = data_processing.read_files(csv_path_index, csv_path_stocks, csv_path_companies)
     processed_sp_index = data_processing.prepare_sp_line_chart(df_index)
-    view.create_sp_index_line_chart(processed_sp_index)
+    previous_closing_value = data_processing.get_previous_closing_value(df_index)
+    view.create_sp_index_line_chart(processed_sp_index, previous_closing_value)
 
 if __name__ == "__main__":
     main()
